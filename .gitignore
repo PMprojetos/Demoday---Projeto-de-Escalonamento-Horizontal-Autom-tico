@@ -1,0 +1,10 @@
+# Ignore tudo dentro do diretório terraform
+terraform/*
+
+# Mas não ignore este arquivo específico
+!terraform/main.tf
+!terraform/gke.tf
+!terraform/bastion-host.tf
+!terraform/script.sh
+
+

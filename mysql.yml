@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: gabrieloliver001/mysql:1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysecret
+              key: PASSWORD
+                  
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysecret
+              key: MYSQL_DATABASE
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+                
+        volumeMounts:
+        - name: fileserver
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: fileserver
+        persistentVolumeClaim:
+          claimName: fileserver
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-connection
+spec:
+  ports:
+  - port: 3306
+  selector:
+    app: mysql
+  clusterIP: None

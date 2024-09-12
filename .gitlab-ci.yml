@@ -1,0 +1,30 @@
+stages:
+  - build
+  - deploy
+
+create_images:
+  stage: build
+  tags:
+    - BASTION
+
+  before_script:
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
+  script:
+    - docker build -t gabrieloliver001/mysql:1.0 mysql/.
+    - docker build -t gabrieloliver001/e-commerce-avanti:1.0 app/.
+    
+    - docker push gabrieloliver001/mysql:1.0
+    - docker push gabrieloliver001/e-commerce-avanti:1.0
+
+kubernetes:
+  stage: deploy
+  tags: 
+    - BASTION
+  before_script:
+    - gcloud container clusters get-credentials avanti-cluster --region us-central1 --project avanti-demoday
+
+  script:
+    - kubectl apply -f mysql.yml
+    - kubectl apply -f app.yml
+
+    
